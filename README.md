@@ -30,16 +30,17 @@ chmod u+x setup.sh
 ./setup.sh
 ```
 
-Then, activate the virtual environment with:
+Then, start the server with:
 
 ```
-source .env/bin/activate
+bash run.sh
 ```
 
-Finally, start the server with:
+or 
 
 ```
-python3 app/main.py
+chmod u+x run.sh
+./run.sh
 ```
 
 A localhost port (default port 5000) to access the server will be printed to the console. Use this to access your server for as long as the process is running in the console.
