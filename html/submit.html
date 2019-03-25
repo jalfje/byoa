@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<style>
+body {
+    font-family: "Arial", "sans-serif";
+}
+
+label {
+    display: block;
+    cursor: pointer;
+}
+
+input[type=file] {
+    display: none;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+</style>
+
+
+
+<title>Submit Job</title>
+<body>
+    <h1>Submit Job</h1>
+    <form method=post enctype=multipart/form-data>
+        <label for=script>Script (.py)</label>
+        <input type=file id=script name=script />
+
+        <label for=dockerfile>Dockerfile (dockerfile)</label>
+        <input type=file id=dockerfile name=dockerfile />
+
+        <label for=datadesc>Data description (.json)</label>
+        <input type=file id=datadesc name=datadesc />
+        
+        <input type=submit value=Upload />
+    </form>
+</body>
+</html>
