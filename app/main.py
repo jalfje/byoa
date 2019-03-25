@@ -38,12 +38,16 @@ def upload_file(the_file):
 def submit_files():
     if request.method == "POST":
         # class of request.files is werkzeug.ImmutableMultiDict
-        logger.debug("Request files: " + str(request.files))
+        logger.debug("Job submitted with request files: " + str(request.files))
         # Get our 3 files from the request
         script = request.files.get("script")
         dockerfile = request.files.get("dockerfile")
         datadesc = request.files.get("datadesc")
+        logger.debug("Script file: " + str(script))
+        logger.debug("Dockerfile: " + str(dockerfile))
+        logger.debug("Data desc file: " + str(datadesc))
         # Verify the files all exist
+        # TODO: fix "flash" not working ("secret key not set"?)
         if script is None or script.filename == "":
             flash("Missing script file")
             return redirect(request.url)
@@ -57,6 +61,7 @@ def submit_files():
         upload_file(script)
         upload_file(dockerfile)
         upload_file(datadesc)
-        return redirect(url_for('uploaded_file', filename=filename))
+        # TODO: upload redirect to somewhere else
+        return redirect(url_for('submit_files'))
 
     return send_from_directory(app.config['HTML_FOLDER'], "submit.html")
