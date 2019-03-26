@@ -1,16 +1,14 @@
 import os
 import sys
 import logging
-from flask import Flask, request, flash, redirect, send_from_directory, url_for
+from flask import Flask, request, flash, redirect, send_from_directory, url_for, render_template
 from werkzeug.utils import secure_filename
-from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
-# This somehow doesn't work with relative paths
-app.config['UPLOAD_FOLDER'] = "/home/jamie/Documents/School/byoa/uploads/"
-app.config['HTML_FOLDER'] = "/home/jamie/Documents/School/byoa/html/"
+# This somehow doesn"t work with relative paths
+app.config["UPLOAD_FOLDER"] = "/home/jamie/Documents/School/byoa/uploads/"
 # 32 MB max upload size
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = 32 * 1024 * 1024
 
 # Set up logging
 formatter = logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
@@ -30,7 +28,7 @@ def hello_world():
 # Save a file
 def upload_file(the_file):
     filename = secure_filename(the_file.filename)
-    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     the_file.save(path)
     logger.debug("Saved file to %s", path)
 
@@ -61,7 +59,13 @@ def submit_files():
         upload_file(script)
         upload_file(dockerfile)
         upload_file(datadesc)
-        # TODO: upload redirect to somewhere else
-        return redirect(url_for('submit_files'))
+        return redirect(url_for("job_submitted", script=script.filename, dockerfile=dockerfile.filename, datadesc=datadesc.filename))
 
-    return send_from_directory(app.config['HTML_FOLDER'], "submit.html")
+    return render_template("submit.html")
+
+@app.route("/submitted/")
+def job_submitted():
+    script = request.args["script"]
+    dockerfile = request.args["dockerfile"]
+    datadesc = request.args["datadesc"]
+    return render_template("submitted.html", script_file=script, dockerfile=dockerfile, data_file=datadesc)

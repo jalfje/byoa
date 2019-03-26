@@ -43,5 +43,5 @@ chmod u+x run.sh
 ./run.sh
 ```
 
-A localhost port (default port 5000) to access the server will be printed to the console. Use this to access your server for as long as the process is running in the console.
+A localhost port (default port 5000) to access the server will be printed to the console. Use this to access your server for as long as the process is running in the console. The main endpoint is `/submit/`, which allows you to upload a python script, a dockerfile, and a json description of the data you wish to run the script on.
 
