@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+    <head>
+
+        <style>
+        body {
+            font-family: "Arial", "sans-serif";
+        }
+        input[type=file] {
+            display: block;
+        }
+        </style>
+
+        <title>{% block title %}{% endblock %} - BYOA</title>
+
+    </head>
+
+    <body>
+        {% block body %}
+        {% endblock %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </body>
+</html>

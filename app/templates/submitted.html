@@ -1,9 +1,6 @@
-<!doctype html>
-<html>
-
-<title>Job Submitted</title>
-<body>
-
+{% extends "base.html" %}
+{% block title %}Job Submitted{% endblock %}
+{% block body %}
     <h1>Job Submitted!</h1>
 
     Successfully submitted job with the following files:
@@ -13,6 +10,4 @@
     Dockerfile: {{ dockerfile }}
     <br/>
     Data description file: {{ data_file }}
-
-</body>
-</html>
+{% endblock %}

@@ -5,6 +5,7 @@ from flask import Flask, request, flash, redirect, send_from_directory, url_for,
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+app.secret_key = "super duper secret key! idk why this needs to be here but it does"
 # This somehow doesn"t work with relative paths
 app.config["UPLOAD_FOLDER"] = "/home/jamie/Documents/School/byoa/uploads/"
 # 32 MB max upload size
@@ -23,7 +24,7 @@ logger = app.logger
 @app.route("/")
 def hello_world():
     logger.debug("Hello World! This is a debug message.")
-    return "Hello World!"
+    return redirect(url_for("submit_files"))
 
 # Save a file
 def upload_file(the_file):
