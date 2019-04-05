@@ -1,0 +1,13 @@
+FROM python:3.6-alpine
+
+RUN apk add docker
+
+ADD . /app
+WORKDIR /app
+RUN pip install -r requirements.txt
+
+ENV FLASK_APP /app/job_manager.py
+ENV FLASK_ENV development
+
+CMD ["flask", "run"]
+CMD ["gunicorn", "-b", ":8001", "job_manager:app"]
