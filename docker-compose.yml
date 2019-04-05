@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  frontend:
+    build: ./frontend
+    image: byoa-frontend
+    ports:
+      - "8000:8000"
+    volumes:
+      - jobs:/jobs
+      - ./frontend:/app
+    environment:
+      - JOBS_FOLDER=/jobs/
+      - MANAGER_HOST=manager
+      - MANAGER_PORT=8001
+    depends_on:
+      - manager
+
+  manager:
+    build: ./manager
+    image: byoa-manager
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - jobs:/jobs
+      - ./manager:/app
+
+volumes:
+  jobs:
