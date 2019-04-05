@@ -11,37 +11,27 @@ Our prof (Yvonne Coady) requested that our repository be made public. In the eve
 
 You will need the following packages to run the project: 
 
-* python3
-* python3-venv
-* python3-pip
+* docker
+* docker-compose
 
 # Setup
 
-With the requirements installed, execute the `setup.sh` script to set up your virtual environment and install packages into it with:
+With the requirements installed, simply run 
 
 ```
-bash setup.sh
+docker-compose up -d
 ```
 
-or 
+from within the main folder. This will build both the frontend and manager docker images, create a container for each, get them to talk to each other, and allow them to be accessed from your host machine.
+
+A localhost port (port 8000) to access the server will be printed to the console. Use this to access your server for as long as the process is running in the console. The main endpoint is `/submit/` (and the endpoint `/` redirects to `/submit/`), which allows you to upload a python script, a dockerfile, and a json description of the data you wish to run the script on.
+
+# Teardown
+
+To stop the running containers, simply run
 
 ```
-chmod u+x setup.sh
-./setup.sh
+docker-compose down
 ```
 
-Then, start the server with:
-
-```
-bash run.sh
-```
-
-or 
-
-```
-chmod u+x run.sh
-./run.sh
-```
-
-A localhost port (default port 5000) to access the server will be printed to the console. Use this to access your server for as long as the process is running in the console. The main endpoint is `/submit/`, which allows you to upload a python script, a dockerfile, and a json description of the data you wish to run the script on.
-
+Again from within the main folder.
