@@ -1,31 +1,22 @@
 import os
-import sys
 import logging
 import requests
 from uuid import uuid4
 from flask import Flask, request, flash, redirect, send_from_directory, url_for, render_template
 from werkzeug.utils import secure_filename
 
+
 app = Flask(__name__)
-app.secret_key = "super duper secret key! idk why this needs to be here but it does"
-# This somehow doesn"t work with relative paths
-app.config["UPLOAD_FOLDER"] = "/home/jamie/Documents/School/byoa/uploads/"
+
+# This is for some reason necessary for message flashing
+app.secret_key = "super duper secret key!"
+
 # 32 MB max upload size
 app.config["MAX_CONTENT_LENGTH"] = 32 * 1024 * 1024
 
 # Set up logging
-#formatter = logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
-#handler = logging.StreamHandler(sys.stdout)
-#handler.setLevel(logging.DEBUG)
-#handler.setFormatter(formatter)
-#logger = logging.getLogger(__name__)
-#logger.addHandler(handler)
 logger = app.logger
 
-@app.route("/")
-def hello_world():
-    logger.debug("Hello World! This is a debug message.")
-    return redirect(url_for("submit_files"))
 
 # Save a file
 def save_file(directory, file_obj):
@@ -34,8 +25,15 @@ def save_file(directory, file_obj):
     file_obj.save(path)
     logger.debug("Saved file to %s", path)
 
+# Get the job manager's URL
+def get_job_manager_url():
+    host = os.environ["MANAGER_HOST"]
+    port = os.environ["MANAGER_PORT"]
+    url = "http://" + host + ":" + port + "/"
+    return url
+
 @app.route("/submit/", methods=["GET", "POST"])
-def submit_files():
+def submit_job():
     if request.method == "POST":
         # class of request.files is werkzeug.ImmutableMultiDict
         logger.debug("Job submitted with request files: %s", str(request.files))
@@ -63,7 +61,7 @@ def submit_files():
         
         # Generate unique job ID and make a directory for it
         job_id = str(uuid4())
-        job_path = os.path.join(app.config["UPLOAD_FOLDER"], job_id)
+        job_path = os.path.join(os.environ["JOBS_FOLDER"], job_id)
         if not os.path.exists(job_path):
             os.makedirs(job_path)
 
@@ -73,8 +71,11 @@ def submit_files():
         save_file(job_path, datadesc)
 
         # Start job with uploaded files
-        job_manager_url = "http://job_manager_host_name:job_manager_port/"
-        requests.post(job_manager_url, data = {"id": job_id, "path": job_path})
+        logger.debug("job manager url: %s", get_job_manager_url())
+        try:
+            requests.post(get_job_manager_url(), json = {"id": job_id, "path": job_path})
+        except Exception as e:
+            logger.debug("Failed to post to manager: %s", e)
 
         # TODO: put job ID into return html somewhere
         return redirect(url_for("job_submitted", script=script.filename, dockerfile=dockerfile.filename, datadesc=datadesc.filename))
@@ -88,3 +89,9 @@ def job_submitted():
     dockerfile = request.args["dockerfile"]
     datadesc = request.args["datadesc"]
     return render_template("submitted.html", script_file=script, dockerfile=dockerfile, data_file=datadesc)
+
+# Redirect home to submit job page
+@app.route("/")
+def hello_world():
+    logger.debug("Hello World! This is a debug message.")
+    return redirect(url_for("submit_job"))
