@@ -32,6 +32,8 @@ def get_job_manager_url():
     url = "http://" + host + ":" + port + "/"
     return url
 
+# TODO: somehow (cookies?) save which files were chosen to upload and
+#       put them back into the submit-file buttons.
 @app.route("/submit/", methods=["GET", "POST"])
 def submit_job():
     if request.method == "POST":
@@ -44,7 +46,7 @@ def submit_job():
         datadesc = request.files.get("datadesc")
         logger.debug("Script file: " + str(script))
         logger.debug("Dockerfile: " + str(dockerfile))
-        logger.debug("Data desc file: " + str(datadesc))
+        logger.debug("Data description file: " + str(datadesc))
 
         # Verify the files all exist, notify user if missing any
         error = []
@@ -58,7 +60,7 @@ def submit_job():
             for msg in error:
                 flash(msg)
             return redirect(request.url)
-        
+
         # Generate unique job ID and make a directory for it
         job_id = str(uuid4())
         job_path = os.path.join(os.environ["JOBS_FOLDER"], job_id)
@@ -77,7 +79,6 @@ def submit_job():
         except Exception as e:
             logger.debug("Failed to post to manager: %s", e)
 
-        # TODO: put job ID into return html somewhere
         return redirect(url_for("job_submitted", script=script.filename, dockerfile=dockerfile.filename, datadesc=datadesc.filename))
 
     return render_template("submit.html")
@@ -85,6 +86,7 @@ def submit_job():
 # Show a submission confirmation screen
 @app.route("/submitted/")
 def job_submitted():
+    # TODO: put job ID into this screen
     script = request.args["script"]
     dockerfile = request.args["dockerfile"]
     datadesc = request.args["datadesc"]
