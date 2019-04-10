@@ -75,22 +75,22 @@ def submit_job():
         # Start job with uploaded files
         logger.debug("job manager url: %s", get_job_manager_url())
         try:
-            requests.post(get_job_manager_url(), json = {"id": job_id, "path": job_path})
+            requests.post(get_job_manager_url(), json = {"id": job_id})
         except Exception as e:
             logger.debug("Failed to post to manager: %s", e)
 
-        return redirect(url_for("job_submitted", script=script.filename, dockerfile=dockerfile.filename, datadesc=datadesc.filename))
+        return redirect(url_for("job_submitted", job_id=job_id, script=script.filename, dockerfile=dockerfile.filename, datadesc=datadesc.filename))
 
     return render_template("submit.html")
 
 # Show a submission confirmation screen
 @app.route("/submitted/")
 def job_submitted():
-    # TODO: put job ID into this screen
+    job_id = request.args["job_id"]
     script = request.args["script"]
     dockerfile = request.args["dockerfile"]
     datadesc = request.args["datadesc"]
-    return render_template("submitted.html", script_file=script, dockerfile=dockerfile, data_file=datadesc)
+    return render_template("submitted.html", job_id=job_id, script_file=script, dockerfile=dockerfile, data_file=datadesc)
 
 # Redirect home to submit job page
 @app.route("/")

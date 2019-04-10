@@ -1,5 +1,6 @@
 import docker
 import time
+import os
 from flask import Flask, request
 from multiprocessing import Process, Queue
 
@@ -34,8 +35,9 @@ def create_container(image):
     return container
 
 # TODO: stream container logs to debug output
-def run_job(job_id, job_path):
-    logger.debug("Running job with job id %s and path %s", str(job_id), str(job_path))
+def run_job(job_id):
+    logger.debug("Running job with job id %s", str(job_id))
+    job_path = os.path.join(os.environ["JOBS_FOLDER"], job_id)
     # TODO: stream build logs to debug output
     image = build_image(job_id, job_path)
     logger.debug("Built image with id %s", str(image.id))
@@ -54,33 +56,26 @@ def run_job(job_id, job_path):
     logger.debug("Image removed. Next job available.")
     return
 
-# This is run from a subprocess, so infinite loop is OK
+# Infinite loop which gets jobs off of the job queue and starts them
 def run_jobs(queue):
     logger.debug("Running run_jobs!")
     while True:
         job_data = queue.get() # block until queue has item
         logger.debug("Got new job! Job data: %s", job_data)
         job_id = job_data["id"]
-        job_path = job_data["path"]
-        run_job(job_id, job_path)
+        run_job(job_id)
 
-# TODO: consider changing interface of input: at present, we accept a json
-# with the job id and the job path - however, because this script is run in
-# a different docker container to the sender, the job path is not necessarily
-# valid, and only works if both the sender and this container use the same volume
-# and path for jobs.
-# Instead, we might want to just accept the job id, assume that the jobs files
-# are in a folder labelled with that job id.
-# Or, instead, actually pass the input files, and have this container save them.
-# But that wouldn't really scale - having the frontend container save the files
-# and then having them both accessible would be valid, because with something like
-# AWS, they would be accessible to both containers with the same path.
+# The endpoint which the frontend sends requests to, which then adds them to
+# the queue for processing. Ideally this would be done in two parts with a third
+# container or other queue service, but that was beyond the feasible scope of
+# our project.
 @app.route("/", methods=["POST"])
 def new_job():
     data = request.get_json()
     job_queue.put(data) # global job queue
     logger.debug("Put data into queue: %s", str(data))
-    return ('', 204) # Return "No content", because we have nothing to give back.
+    # Return "204 No Content", because we have no data to return.
+    return ('', 204)
 
 # Job queue manager. This would ideally be put into a separate docker container,
 # but that would have taken too much effort to implement correctly in our
