@@ -59,16 +59,16 @@ def run_container(image, job_id, node_idx, input_volume, output_volume):
             # bound volumes for input and output file access
             volumes = {input_volume: {"bind": "/input", "mode": "rw"},
                        output_volume: {"bind": "/output", "mode": "rw"}},
-            detach = False, # run in background
-            auto_remove = False # remove when finished
+            detach = True, # run in background
+            auto_remove = True # remove when finished
             )
     return container
 
 # Creates a number of containers equal to the number of nodes specified
 def run_all_containers(image, job_id, job_path, num_nodes):
     for node_idx in range(num_nodes):
-        input_dir = path.join(node_str(node_idx), "input")
-        output_dir = path.join(node_str(node_idx), "output")
+        input_dir = path.join(job_path, node_str(node_idx), "input")
+        output_dir = path.join(job_path, node_str(node_idx), "output")
         # Create and run detached container
         run_container(image, job_id, node_idx, input_dir, output_dir)
 
