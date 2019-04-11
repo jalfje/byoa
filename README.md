@@ -19,16 +19,16 @@ You will need the following packages to run the project:
 With the requirements installed, simply run 
 
 ```
-docker-compose up -d
+docker-compose up
 ```
 
 from within the main folder. This will build both the frontend and manager docker images, create a container for each, get them to talk to each other, and allow them to be accessed from your host machine.
 
-A localhost port (port 8000) to access the server will be printed to the console. Use this to access your server for as long as the process is running in the console. The main endpoint is `/submit/` (and the endpoint `/` redirects to `/submit/`), which allows you to upload a python script, a dockerfile, and a json description of the data you wish to run the script on.
+A localhost port (`0.0.0.0:8000/`) to access the server will be printed to the console. Use this to access your server for as long as the process is running in the console. The main endpoint is `/submit/` (and the endpoint `/` redirects to `/submit/`), which allows you to upload a python script, a dockerfile, and a json description of the data you wish to run the script on.
 
 # Teardown
 
-To stop the running containers, simply run
+To stop the running containers, press `Ctrl+C`, then run
 
 ```
 docker-compose down
