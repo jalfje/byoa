@@ -35,12 +35,13 @@ def create_container(image):
     return container
 
 # TODO: stream container logs to debug output
-def run_job(job_id):
+def run_job(job_id, num_nodes):
     logger.debug("Running job with job id %s", str(job_id))
     job_path = os.path.join(os.environ["JOBS_FOLDER"], job_id)
     # TODO: stream build logs to debug output
     image = build_image(job_id, job_path)
     logger.debug("Built image with id %s", str(image.id))
+    # TODO: run certain number of parallel containers
     container = create_container(image)
     logger.debug("Created container with name %s", str(container.name))
     container.start()
@@ -63,7 +64,8 @@ def run_jobs(queue):
         job_data = queue.get() # block until queue has item
         logger.debug("Got new job! Job data: %s", job_data)
         job_id = job_data["id"]
-        run_job(job_id)
+        num_nodes = job_data["num_nodes"]
+        run_job(job_id, num_nodes)
 
 # The endpoint which the frontend sends requests to, which then adds them to
 # the queue for processing. Ideally this would be done in two parts with a third

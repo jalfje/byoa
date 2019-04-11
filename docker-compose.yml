@@ -13,6 +13,7 @@ services:
       - JOBS_FOLDER=/jobs
       - MANAGER_HOST=manager
       - MANAGER_PORT=8001
+      - MAX_NODES=10
     depends_on:
       - manager
 

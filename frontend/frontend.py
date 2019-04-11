@@ -3,7 +3,6 @@ import logging
 import requests
 from uuid import uuid4
 from flask import Flask, request, flash, redirect, send_from_directory, url_for, render_template
-from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
@@ -20,8 +19,7 @@ logger = app.logger
 
 # Save a file
 def save_file(directory, file_obj):
-    filename = secure_filename(file_obj.filename)
-    path = os.path.join(directory, filename)
+    path = os.path.join(directory, file_obj.filename)
     file_obj.save(path)
     logger.debug("Saved file to %s", path)
 
@@ -47,8 +45,11 @@ def submit_job():
         logger.debug("Script file: " + str(script))
         logger.debug("Dockerfile: " + str(dockerfile))
         logger.debug("Data description file: " + str(datadesc))
+        # Get # nodes from the request
+        num_nodes = request.form["num_nodes"]
+        logger.debug("Number of nodes requested: " + str(num_nodes))
 
-        # Verify the files all exist, notify user if missing any
+        # Verify the input is all there, notify user if missing any or invalid
         error = []
         if script is None or script.filename == "":
             error.append("Missing script file")
@@ -56,6 +57,18 @@ def submit_job():
             error.append("Missing dockerfile")
         if datadesc is None or datadesc.filename == "":
             error.append("Missing data description file")
+        if num_nodes is None:
+            error.append("Missing number of input nodes")
+        else:
+            try:
+                num_nodes = int(num_nodes)
+                if num_nodes < 1:
+                    error.append("Number of nodes must be at least 1")
+                elif num_nodes > int(os.environ["MAX_NODES"]):
+                    error.append("Number of nodes must be no more than " + str(os.environ["MAX_NODES"]))
+            except ValueError:
+                error.append("Number of nodes must be an integer")
+
         if error:
             for msg in error:
                 flash(msg)
@@ -75,13 +88,18 @@ def submit_job():
         # Start job with uploaded files
         logger.debug("job manager url: %s", get_job_manager_url())
         try:
-            requests.post(get_job_manager_url(), json = {"id": job_id})
+            requests.post(get_job_manager_url(), json = {"id": job_id, "num_nodes": num_nodes})
         except Exception as e:
             logger.debug("Failed to post to manager: %s", e)
 
-        return redirect(url_for("job_submitted", job_id=job_id, script=script.filename, dockerfile=dockerfile.filename, datadesc=datadesc.filename))
+        return redirect(url_for("job_submitted",
+                                job_id=job_id,
+                                script=script.filename,
+                                dockerfile=dockerfile.filename,
+                                datadesc=datadesc.filename,
+                                num_nodes=num_nodes))
 
-    return render_template("submit.html")
+    return render_template("submit.html", max_nodes = os.environ["MAX_NODES"])
 
 # Show a submission confirmation screen
 @app.route("/submitted/")
@@ -90,7 +108,13 @@ def job_submitted():
     script = request.args["script"]
     dockerfile = request.args["dockerfile"]
     datadesc = request.args["datadesc"]
-    return render_template("submitted.html", job_id=job_id, script_file=script, dockerfile=dockerfile, data_file=datadesc)
+    num_nodes = request.args["num_nodes"]
+    return render_template("submitted.html",
+                           job_id=job_id,
+                           script_file=script,
+                           dockerfile=dockerfile,
+                           data_file=datadesc,
+                           num_nodes=num_nodes)
 
 # Redirect home to submit job page
 @app.route("/")

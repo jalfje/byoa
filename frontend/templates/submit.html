@@ -3,15 +3,19 @@
 {% block body %}
     <h1>Submit Job</h1>
     <form method=post enctype=multipart/form-data>
-        Script (python)
-        <input type=file id=script name=script class=submitfile />
 
+        Script (python)
+        <input type=file id=script name=script />
+        
         Dockerfile (dockerfile)
-        <input type=file id=dockerfile name=dockerfile class=submitfile />
+        <input type=file id=dockerfile name=dockerfile />
 
         Data description (json)
-        <input type=file id=datadesc name=datadesc class=submitfile />
-        
+        <input type=file id=datadesc name=datadesc />
+
+        Maximum number of nodes to use (integer between 1 and {{ max_nodes }})
+        <input type=number id=num_nodes name=num_nodes min=1 max={{ max_nodes }} value=1 step=1 />
+
         <input type=submit value=Upload />
     </form>
 {% endblock %}
