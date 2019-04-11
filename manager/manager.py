@@ -52,7 +52,7 @@ def build_image(image_tag, dockerfile_path):
 
 # Create and run a container from an image
 def run_container(image, job_id, node_idx, input_volume, output_volume):
-    logger.debug("Creating containers from image with id %s", image.id)
+    logger.debug("Running container from image with id %s", image.id)
     container = client.containers.run(
             image = image.id, # image to start from
             name = str(job_id) + node_str(node_idx), # name of container
