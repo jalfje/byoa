@@ -53,15 +53,15 @@ def submit_job():
         error = []
         if script is None or script.filename == "":
             error.append("Missing script file")
-        elif not script.endswith(".py"):
+        elif not script.filename.endswith(".py"):
             error.append("Script must be a python .py file")
         if dockerfile is None or dockerfile.filename == "":
             error.append("Missing dockerfile")
-        elif not dockerfile.lower() == "dockerfile":
+        elif not dockerfile.filename.lower() == "dockerfile":
             error.append('Dockerfile must be named "dockerfile"')
         if datadesc is None or datadesc.filename == "":
             error.append("Missing data description file")
-        elif not datadesc.endswith(".json"):
+        elif not datadesc.filename.endswith(".json"):
             error.append("Data description must be a JSON .json file")
         if num_nodes is None:
             error.append("Missing number of input nodes")
@@ -74,7 +74,7 @@ def submit_job():
                     error.append("Number of nodes must be no more than " + str(os.environ["MAX_NODES"]))
             except ValueError:
                 error.append("Number of nodes must be an integer")
-
+        # Report error and stop if submission is invalid
         if error:
             for msg in error:
                 flash(msg)
