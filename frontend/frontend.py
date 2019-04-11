@@ -53,10 +53,16 @@ def submit_job():
         error = []
         if script is None or script.filename == "":
             error.append("Missing script file")
+        elif not script.endswith(".py"):
+            error.append("Script must be a python .py file")
         if dockerfile is None or dockerfile.filename == "":
             error.append("Missing dockerfile")
+        elif not dockerfile.lower() == "dockerfile":
+            error.append('Dockerfile must be named "dockerfile"')
         if datadesc is None or datadesc.filename == "":
             error.append("Missing data description file")
+        elif not datadesc.endswith(".json"):
+            error.append("Data description must be a JSON .json file")
         if num_nodes is None:
             error.append("Missing number of input nodes")
         else:
